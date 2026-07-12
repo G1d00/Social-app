@@ -6,10 +6,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("api/posts", async (req, res) => {
+app.get("/api/posts", async (req, res) => {
+    const limit = Number(req.query.limit) || 20;
+    const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
     const posts = await prisma.post.findMany({
         include: { author: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: { id: "desc" },
+        take: limit,
+        where: cursor ? { id: { lt:cursor } } : undefined,
     });
     res.json(posts);
 });
