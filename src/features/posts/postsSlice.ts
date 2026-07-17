@@ -1,20 +1,22 @@
 import {createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {getPosts, type Post} from '@/api/client';
 
-export const fetchFeed = createAsyncThunk("posts/fetchFeed", async () => {
-  return await getPosts();
+export const fetchFeed = createAsyncThunk<Post[], number | undefined>("posts/fetchFeed", async (cursor) => {
+  return await getPosts(cursor);
 });
 
 type PostsState = {
     items: Post[];
     loading: boolean;
     error: string | null;
+    hasMore: boolean;
 }
 
 const initialState: PostsState = {
     items: [],
     loading: false,
     error: null,
+    hasMore: true,
 }
 
 const postsSlice = createSlice({
@@ -23,13 +25,23 @@ const postsSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchFeed.pending, (state) => {
-                state.loading = true;
+            .addCase(fetchFeed.pending, (state, action) => {
+                const cursor = action.meta.arg;
+                if (cursor === undefined && state.items.length === 0) {
+                    state.loading = true;
+                }
                 state.error = null;
             })
             .addCase(fetchFeed.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items = action.payload;
+                const cursor = action.meta.arg;
+                if (cursor === undefined) {
+                    state.items= action.payload;
+                }
+                else {
+                    state.items.push(...action.payload);
+                }
+                state.hasMore = action.payload.length >= 20;
             })
             .addCase(fetchFeed.rejected, (state, action) => {
                 state.loading = false;

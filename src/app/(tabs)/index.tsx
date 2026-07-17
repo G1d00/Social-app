@@ -2,48 +2,35 @@ import { View, Text, ActivityIndicator, FlatList } from 'react-native'
 import { useEffect, useState } from 'react'
 import { PostCard } from '@/components/post-card'
 import { getPosts, type Post } from "@/api/client"
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import { fetchFeed } from '@/features/posts/postsSlice'
 
 const Feed = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const posts = useAppSelector((s) => s.posts.items);
+  const loading = useAppSelector((s) => s.posts.loading);
+  const error = useAppSelector((s) => s.posts.error);
+  const hasMore = useAppSelector((s) => s.posts.hasMore)
   const [refreshing, setRefreshing] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    getPosts()
-      .then(setPosts)
-      .catch(() => setError('Failed to load feed.'))
-      .finally(() => setLoading(false))
-  }, []);
+    dispatch(fetchFeed());
+  }, [])
 
   async function loadMore() {
     if (loadingMore || !hasMore || posts.length === 0) return;
     setLoadingMore(true);
-    try {
-      const cursor = posts[posts.length -1].id
-      const next = await getPosts(cursor);
-      if (next.length < 20) setHasMore(false);
-      setPosts((prev) => [...prev, ...next]);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoadingMore(false);
-    }
+    const cursor = posts[posts.length -1].id
+    await dispatch(fetchFeed(cursor));
+    setLoadingMore(false);
   }
 
   async function handleRefresh() {
     setRefreshing(true);
-    try {
       const data = await getPosts();
-      setPosts(data);
-      setHasMore(true);
-    } catch {
-      setError('Failed to refresh feed.');
-    } finally {
-      setRefreshing(false);
-    }
+      await dispatch(fetchFeed());
+      setRefreshing(false)
   }
 
   if (loading) return <ActivityIndicator style= {{ flex: 1 }}/>;
