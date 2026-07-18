@@ -1,7 +1,10 @@
-import { View, Image, Text } from "react-native";
+import { View, Image, Text, Pressable } from "react-native";
 import type { Post } from "@/api/client";
+import { useAppDispatch } from "@/store/hooks";
+import { toggleLike } from "@/features/posts/postsSlice";
 
 export function PostCard( {post} : {post : Post}) {
+    const dispatch = useAppDispatch();
     return (
         <View className="flex-row gap-2 my-2">
             <Image
@@ -12,6 +15,13 @@ export function PostCard( {post} : {post : Post}) {
                 <Text className="font-semibold text-black">{post.author.displayName}</Text>
                 <Text selectable>{post.content}</Text>
                 <Text>{new Date(post.createdAt).toLocaleDateString()}</Text>
+
+                <Pressable
+                    onPress={() => dispatch(toggleLike(post.id))}
+                >
+                    <Text>{post.likedByMe ? "❤️" : "🤍"}</Text>
+                    <Text className="text-gray-600" style={{ fontVariant: ["tabular-nums"]}}>{post.likeCount}</Text>
+                </Pressable>
             </View>
         </View>
     )

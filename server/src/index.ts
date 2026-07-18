@@ -20,7 +20,6 @@ app.get("/api/posts", async (req, res) => {
         take: limit,
         where: cursor ? { id: { lt:cursor } } : undefined,
     });
-    res.json(posts);
 
     const shaped = posts.map((p) => ({
         id: p.id,
