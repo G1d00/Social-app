@@ -1,5 +1,5 @@
 import { View, Text, ActivityIndicator, FlatList } from 'react-native'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { PostCard } from '@/components/post-card'
 import { getPosts, type Post } from "@/api/client"
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
@@ -13,6 +13,9 @@ const Feed = () => {
   const hasMore = useAppSelector((s) => s.posts.hasMore)
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const renderItem = useCallback(({item}: {item: Post}) => <PostCard post={item}/>,[])
+  const keyExtractor = useCallback((post: Post) => String(post.id),[])
 
   useEffect(() => {
     dispatch(fetchFeed());
@@ -39,8 +42,8 @@ const Feed = () => {
   return (
     <FlatList
       data={posts}
-      renderItem={({item}) => <PostCard post={item}/>}
-      keyExtractor={(post) => String(post.id)}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
       contentInsetAdjustmentBehavior="automatic"
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}

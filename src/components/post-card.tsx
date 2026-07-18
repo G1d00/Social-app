@@ -2,8 +2,10 @@ import { View, Image, Text, Pressable } from "react-native";
 import type { Post } from "@/api/client";
 import { useAppDispatch } from "@/store/hooks";
 import { toggleLike } from "@/features/posts/postsSlice";
+import { memo } from "react";
 
-export function PostCard( {post} : {post : Post}) {
+export const PostCard = memo( function PostCard( {post} : {post : Post}) {
+    console.log("render postcard", post.id)
     const dispatch = useAppDispatch();
     return (
         <View className="flex-row gap-2 my-2">
@@ -25,4 +27,4 @@ export function PostCard( {post} : {post : Post}) {
             </View>
         </View>
     )
-}
+})
