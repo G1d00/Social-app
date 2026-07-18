@@ -16,7 +16,6 @@ export const toggleLike = createAsyncThunk<void, number, {state: RootState }>(
             if (wasLiked) await unlikePost(postId);
             else await likePost(postId);
         } catch (e) {
-            console.log("toggleLike failed:", e);
             dispatch(setLiked({ postId, liked: wasLiked }));
             throw e;
         }
