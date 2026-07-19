@@ -5,7 +5,6 @@ import { toggleLike } from "@/features/posts/postsSlice";
 import { memo } from "react";
 
 export const PostCard = memo( function PostCard( {post} : {post : Post}) {
-    console.log("render postcard", post.id)
     const dispatch = useAppDispatch();
     return (
         <View className="flex-row gap-2 my-2">
@@ -20,6 +19,7 @@ export const PostCard = memo( function PostCard( {post} : {post : Post}) {
 
                 <Pressable
                     onPress={() => dispatch(toggleLike(post.id))}
+                    className="flex-row"
                 >
                     <Text>{post.likedByMe ? "❤️" : "🤍"}</Text>
                     <Text className="text-gray-600" style={{ fontVariant: ["tabular-nums"]}}>{post.likeCount}</Text>

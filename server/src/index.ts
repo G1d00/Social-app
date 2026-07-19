@@ -50,4 +50,27 @@ app.delete("/api/posts/:id/like", async (req,res) => {
     res.json({ ok: true});
 })
 
+app.get("/api/posts/:id/comments", async (req, res) => {
+    const postId = Number(req.params.id);
+    const comments = await prisma.comment.findMany({
+        where: {postId},
+        include: {user: true},
+        orderBy: {id: "asc"},
+    });
+    res.json(comments);
+})
+
+app.post("/api/posts/:id/comments", async (req, res) => {
+    const postId = Number(req.params.id);
+    const { content } = req.body;
+    if (!content || typeof content !== "string") {
+        return res.status(400).json({error: "content is required"});
+    }
+    const comment = await prisma.comment.create({
+        data: { content, postId, userId: CURRENT_USER_ID},
+        include: {user: true}
+    });
+    res.status(201).json(comment);
+})
+
 app.listen(3000, () => console.log("listening on http://localhost:3000"));

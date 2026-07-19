@@ -1,5 +1,6 @@
-import { View, Text, ActivityIndicator, FlatList } from 'react-native'
+import { View, Text, ActivityIndicator, FlatList, Pressable } from 'react-native'
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'expo-router'
 import { PostCard } from '@/components/post-card'
 import { getPosts, type Post } from "@/api/client"
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
@@ -14,7 +15,13 @@ const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const renderItem = useCallback(({item}: {item: Post}) => <PostCard post={item}/>,[])
+  const renderItem = useCallback(({item}: {item: Post}) => (
+    <Link href={`/${item.id}`} asChild>
+      <Pressable>
+        <PostCard post={item}/>
+      </Pressable>
+    </Link>
+  ),[])
   const keyExtractor = useCallback((post: Post) => String(post.id),[])
 
   useEffect(() => {
